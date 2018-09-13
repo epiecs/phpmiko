@@ -1,0 +1,26 @@
+{
+    "name": "epiecs/phpmiko",
+    "description": "Netmiko alternative written in PHP.",
+    "keywords": ["netmiko", "paramiko", "networking", "automation"],
+    "license": "DBAD",
+    "authors": [
+        {
+            "name": "Gregory Bers",
+            "email": "gregorybers@epiecs.be"
+        }
+    ],
+    "type": "library",
+    "require": {
+		"php": ">=7.1",
+		"geerlingguy/ping": "^1.1",
+		"phpseclib/phpseclib": "^2.0"
+    },
+    "require-dev": {
+		"phpunit/phpunit": "6.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Epiecs\\PhpMiko\\": "src/"
+        }
+    }
+}
