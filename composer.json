@@ -12,7 +12,6 @@
     "type": "library",
     "require": {
 		"php": ">=7.1",
-		"geerlingguy/ping": "^1.1",
 		"phpseclib/phpseclib": "^2.0"
     },
     "require-dev": {
