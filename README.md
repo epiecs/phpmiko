@@ -29,3 +29,5 @@ operation command
 example given how to setup
 versioning in file
 configure return text or just true/false? Capture all output?
+
+TODO
