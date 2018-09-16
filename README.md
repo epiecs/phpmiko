@@ -31,3 +31,5 @@ versioning in file
 configure return text or just true/false? Capture all output?
 
 TODO
+
+raw output?

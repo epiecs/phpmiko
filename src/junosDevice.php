@@ -92,6 +92,30 @@ class JunosDevice implements deviceInterface
 		$operationalModePattern   = '/.*@.*>\s/m';
 		$configurationModePattern = '/.*@.*#\s/m';
 
+		/**
+		 * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
+		 * commands and turn them into a regex pattern.
+		 *
+		 * At the end we add some extra patterns in orde to fully clean up the output.
+		 */
+
+		$cleanupOutputPatterns = array_values($commands);
+		array_walk($cleanupOutputPatterns, function(&$value, &$key)
+		{
+		    $value = '/' . preg_quote($value, '/') . '\s/m';
+		});
+
+		$cleanupOutputPatterns    = array_merge($cleanupOutputPatterns, [
+			$configurationModePattern,
+			'/\[edit.*\]/',
+            '/{master:.*}/',
+            '/{backup:.*}/',
+            '/{line.*}/',
+            '/{primary.*}/',
+            '/{secondary.*}/',
+			'/^\r?\n/m' //Filter empty lines
+		]);
+
 		// First we do a basic cleanup of the shell
 		$this->conn->write("\n\n\n\n\n\n");
 		$this->conn->read($shellPattern, $this->conn::READ_REGEX) . "\n";
@@ -126,19 +150,12 @@ class JunosDevice implements deviceInterface
 
 			// Read the data and clean it up before we add it to the output
 
-			$baseOutput = $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
+			$output .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX) . "\n";
 
-			// Remove the issued command from output
-			$baseOutput = preg_replace('/' . preg_quote($command, '/') . '\s/m', '', $baseOutput);
-			// Remove the shell line from output
-			$baseOutput = preg_replace($configurationModePattern, '', $baseOutput);
-			// Remove the master line from output
-			$baseOutput = preg_replace('/{master:0}.*/', '', $baseOutput);
-			// Remove all leftover empty linebreaks from output
-			$baseOutput = preg_replace('/^\r?\n/m', '', $baseOutput);
-
-			$output .= $baseOutput . "\n";
 		}
+
+		if($this->verbose){ echo "Cleaning up output"; echo "\n"; }
+		$output = $baseOutput = preg_replace($cleanupOutputPatterns, '', $output);
 
 		// Exit the cli
 		$this->conn->write("top \n");
