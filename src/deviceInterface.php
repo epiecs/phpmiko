@@ -38,11 +38,11 @@ interface deviceInterface
     public function operation($commands) : string;
 
 	/**
-	 * sends one or more configuration commands to the device. Commands can be a string or array with multiple commands.
+	 * Sends one or more configuration commands to the device.
 	 * Eg. configuration/edit mode in junos or global configuration in cisco ios
 	 *
 	 * In this mode commands can be chained and executed sequentially. However this is only per set of supplied commands.
-	 * After earch block of commands the configuration mode of the device will be exited.
+	 * After each block of commands the configuration mode of the device will be exited.
 	 *
 	 * @param mixed $commands Either a string containing one command or an array containing multiple command's
 	 * @return string returns all output

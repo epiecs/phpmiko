@@ -138,8 +138,4 @@ class ConnectionHandler
 
 		return true;
 	}
-
-	//__set voor verbose op te vangen
-	//indien verbose deviceconn obj aanpassen
-	//ook met verbose rekening houden met aanmaken van object
 }
