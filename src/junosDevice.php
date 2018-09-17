@@ -26,6 +26,13 @@ class JunosDevice implements deviceInterface
 	public $verbose = false;
 
 	/**
+	 * Output raw text without cleanup
+	 * @var boolean
+	 */
+
+	public $raw = false;
+
+	/**
 	 * Constructor. Expects a ssh2 object
 	 * @param object $connection SSH2 object
 	 */
@@ -92,30 +99,6 @@ class JunosDevice implements deviceInterface
 		$operationalModePattern   = '/.*@.*>\s/m';
 		$configurationModePattern = '/.*@.*#\s/m';
 
-		/**
-		 * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
-		 * commands and turn them into a regex pattern.
-		 *
-		 * At the end we add some extra patterns in orde to fully clean up the output.
-		 */
-
-		$cleanupOutputPatterns = array_values($commands);
-		array_walk($cleanupOutputPatterns, function(&$value, &$key)
-		{
-		    $value = '/' . preg_quote($value, '/') . '\s/m';
-		});
-
-		$cleanupOutputPatterns    = array_merge($cleanupOutputPatterns, [
-			$configurationModePattern,
-			'/\[edit.*\]/',
-            '/{master:.*}/',
-            '/{backup:.*}/',
-            '/{line.*}/',
-            '/{primary.*}/',
-            '/{secondary.*}/',
-			'/^\r?\n/m' //Filter empty lines
-		]);
-
 		// First we do a basic cleanup of the shell
 		$this->conn->write("\n\n\n\n\n\n");
 		$this->conn->read($shellPattern, $this->conn::READ_REGEX) . "\n";
@@ -149,13 +132,8 @@ class JunosDevice implements deviceInterface
 			$this->conn->write($command . "\n");
 
 			// Read the data and clean it up before we add it to the output
-
 			$output .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX) . "\n";
-
 		}
-
-		if($this->verbose){ echo "Cleaning up output"; echo "\n"; }
-		$output = $baseOutput = preg_replace($cleanupOutputPatterns, '', $output);
 
 		// Exit the cli
 		$this->conn->write("top \n");
@@ -174,6 +152,37 @@ class JunosDevice implements deviceInterface
 		$postConfig .= $this->conn->read($shellPattern, $this->conn::READ_REGEX);
 
 		if($this->verbose){ echo $postConfig; echo "\n"; }
+
+		if(!$this->raw)
+		{
+			if($this->verbose){ echo "Cleaning up output"; echo "\n"; }
+
+			/**
+			 * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
+			 * commands and turn them into a regex pattern.
+			 *
+			 * At the end we add some extra patterns in orde to fully clean up the output.
+			 */
+
+			$cleanupOutputPatterns = array_values($commands);
+			array_walk($cleanupOutputPatterns, function(&$value, &$key)
+			{
+			    $value = '/' . preg_quote($value, '/') . '\s/m';
+			});
+
+			$cleanupOutputPatterns    = array_merge($cleanupOutputPatterns, [
+				$configurationModePattern,
+				'/\[edit.*\]/',
+	            '/{master:.*}/',
+	            '/{backup:.*}/',
+	            '/{line.*}/',
+	            '/{primary.*}/',
+	            '/{secondary.*}/',
+				'/^\r?\n/m' //Filter empty lines
+			]);
+
+			$output = preg_replace($cleanupOutputPatterns, '', $output);
+		}
 
 		return $output;
     }

@@ -1,7 +1,7 @@
 PhpMiko
 =======
 
-<3 NetMiko but I'm a php developer. So I'm trying to implement this in php.
+<3 NetMiko but I'm a php developer. So I've decided to build a php alternative
 
 Mad respect to [Kirk Byers](https://github.com/ktbyers/netmiko) for creating netmiko and being a huge inspiration to this project.
 
@@ -19,25 +19,36 @@ I'll add this project to packagist once it is somewhat more finished.
 
 ###### Planned
 
+- Aruba
+- Avaya
 - Cisco ios
 - Linux
 - Powershell
+- Vyos
+- ...
 
 ## Examples:
 
 #### Connecting to a device
 
 ```php
-$device = new Epiecs\PhpMiko\connectionHandler([
+$device = new \Epiecs\PhpMiko\connectionHandler([
 	'device_type' => 'junos',
 	'ip'          => '192.168.0.1',
 	'username'    => 'username',
 	'password'    => 'password',
-	'port'        => 22,            //defaults to 22 if not set
-	'secret'      => 'secret',      //default is ''
-	'verbose'     => false          //default is false
+	'port'        => 22,             //defaults to 22 if not set
+	'secret'      => 'secret',       //default is ''
+	'verbose'     => false           //default is false
+	'raw'         => false           //default is false
 ]);
 ```
+
+When the __raw__ flag is set to true PhpMiko will not clean up output and return it as is (minus a few hidden characters so you at least get all textual output).
+
+__Secret__ is used when a runlevel requires a different password. Like for example enable mode in Cisco ios. You would put the enable password in the secret field.
+
+__Verbose__ provides debugging information for each step that is being performed.
 
 #### Closing the connection
 
@@ -96,7 +107,7 @@ cd /tmp ; pwd runs both commands back to back and ignores the return code of pre
 cd /tmp && pwd only runs pwd if the previous command (cd /tmp) returns status 0 (command successfull)
 
 This way the user still has enough flexibility. It would have been easy to just implode all the commands with ;
-or && but that would make this library to opiniated imho.
+or && but that would make this library to opinionated imho.
 
 ```php
 echo $device->cli([

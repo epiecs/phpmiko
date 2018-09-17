@@ -65,6 +65,13 @@ class ConnectionHandler
 	public $verbose = false;
 
 	/**
+	 * Turn raw mode on or off. When on no output cleaning is performed.
+	 * @var boolean
+	 */
+
+	public $raw = false;
+
+	/**
 	 * Contains the SSH2 object with the ssh connection to the device
 	 * @var object
 	 */
@@ -108,6 +115,7 @@ class ConnectionHandler
 
 		$this->deviceConnection->verbose = $this->verbose;
 		$this->deviceConnection->secret  = $this->secret;
+		$this->deviceConnection->raw     = $this->raw;
 
 		return true;
 	}
@@ -135,7 +143,6 @@ class ConnectionHandler
 	public function disconnect()
 	{
 		unset($this->deviceConnection);
-
 		return true;
 	}
 }
