@@ -50,12 +50,6 @@ __Secret__ is used when a runlevel requires a different password. Like for examp
 
 __Verbose__ provides debugging information for each step that is being performed.
 
-#### Closing the connection
-
-```php
-$device->disconnect();
-```
-
 #### Sending commands
 
 When sending commands you can either provide the resp. function with a string or an array consisting of commands. Either way is fine. When providing an array the commands are run in order.
@@ -147,4 +141,28 @@ echo $device->configure([
 	'edit interfaces ge-0/0/1',
 	'set description "Sequential commands work"',
 ]);
+```
+
+#### Setting verbose mode
+
+Defaults to true when calling the function. Saves a bit of typing
+
+```php
+$device->verbose();
+$device->verbose(false);
+```
+
+#### Setting raw mode
+
+Defaults to true when calling the function.
+
+```php
+$device->raw();
+$device->raw(false);
+```
+
+#### Closing the connection
+
+```php
+$device->disconnect();
 ```
