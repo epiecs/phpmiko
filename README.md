@@ -11,6 +11,12 @@ I'll add this project to packagist once it is somewhat more finished.
 
 - Php >= 7.1
 
+#### Installation:
+
+```bash
+composer require epiecs/phpmiko
+```
+
 #### Supports:
 
 ###### Implemented
@@ -32,6 +38,9 @@ I'll add this project to packagist once it is somewhat more finished.
 #### Connecting to a device
 
 ```php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
 $device = new \Epiecs\PhpMiko\connectionHandler([
 	'device_type' => 'junos',
 	'ip'          => '192.168.0.1',
