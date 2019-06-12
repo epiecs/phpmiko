@@ -48,7 +48,7 @@ $device = new \Epiecs\PhpMiko\connectionHandler([
 	'password'    => 'password',
 	'port'        => 22,             //defaults to 22 if not set
 	'secret'      => 'secret',       //default is ''
-	'verbose'     => false           //default is false
+	'verbose'     => false,          //default is false
 	'raw'         => false           //default is false
 ]);
 ```

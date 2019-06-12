@@ -48,7 +48,7 @@ class ConnectionHandler
 		$port = isset($parameters['port']) ? $parameters['port']   : 22;
 
 		// Instantiate the class for the specific device
-		$device_type = ucfirst(mb_strtolower($parameters['device_type']));
+		$device_type = strtolower($parameters['device_type']);
 		$deviceClass = 'Epiecs\\PhpMiko\\' . $device_type . 'Device';
 
 		if(!class_exists($deviceClass))
