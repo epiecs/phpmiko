@@ -1,6 +1,6 @@
 <?php
 
-namespace Epiecs\PhpMiko;
+namespace Epiecs\PhpMiko\Devices;
 
 interface deviceInterface
 {

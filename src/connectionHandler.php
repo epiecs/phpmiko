@@ -49,7 +49,8 @@ class ConnectionHandler
 
 		// Instantiate the class for the specific device
 		$device_type = strtolower($parameters['device_type']);
-		$deviceClass = 'Epiecs\\PhpMiko\\' . $device_type . 'Device';
+		$deviceClass = 'Epiecs\\PhpMiko\\Devices\\' . $device_type;
+
 
 		if(!class_exists($deviceClass))
 		{

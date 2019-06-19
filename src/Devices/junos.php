@@ -1,8 +1,8 @@
 <?php
 
-namespace Epiecs\PhpMiko;
+namespace Epiecs\PhpMiko\Devices;
 
-class JunosDevice implements deviceInterface
+class junos implements deviceInterface
 {
 	/**
 	 * Holds the ssh connection
@@ -102,8 +102,6 @@ class JunosDevice implements deviceInterface
 		// First we do a basic cleanup of the shell
 		$this->conn->write("\n\n\n\n\n\n");
 		$this->conn->read($shellPattern, $this->conn::READ_REGEX) . "\n";
-		$this->conn->write("echo gregory \n");
-		$this->conn->read($shellPattern, $this->conn::READ_REGEX) . "\n";
 
 		// Go to configuration mode
 		$this->conn->write("cli \n");
@@ -131,15 +129,12 @@ class JunosDevice implements deviceInterface
 
 			$this->conn->write($command . "\n");
 
-			// Read the data and clean it up before we add it to the output
+			// Read the data and add it to the output
 			$output .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX) . "\n";
 		}
 
 		// Exit the cli
 		$this->conn->write("top \n");
-		$postConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
-
-		$this->conn->write("run set cli screen-length 55 \n");
 		$postConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
 
 		$this->conn->write("run set cli screen-length 93 \n");
