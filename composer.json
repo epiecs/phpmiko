@@ -2,7 +2,7 @@
     "name": "epiecs/phpmiko",
     "description": "Netmiko alternative written in PHP.",
     "keywords": ["netmiko", "paramiko", "networking", "automation"],
-    "license": "DBAD",
+    "license": "MIT",
     "authors": [
         {
             "name": "Gregory Bers",
