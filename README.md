@@ -5,8 +5,6 @@ PhpMiko
 
 Mad respect to [Kirk Byers](https://github.com/ktbyers/netmiko) for creating netmiko and being a huge inspiration to this project.
 
-I'll add this project to packagist once it is somewhat more finished.
-
 #### Requires:
 
 - Php >= 7.1
@@ -22,15 +20,16 @@ composer require epiecs/phpmiko
 ###### Implemented
 
 - Juniper Junos
+- Cisco ios
 
 ###### Planned
 
 - Aruba
 - Avaya
-- Cisco ios
 - Linux
 - Powershell
 - Vyos
+- Checkpoint
 - ...
 
 ## Examples:
@@ -57,13 +56,26 @@ When the __raw__ flag is set to true PhpMiko will not clean up output and return
 
 __Secret__ is used when a runlevel requires a different password. Like for example enable mode in Cisco ios. You would put the enable password in the secret field.
 
-__Verbose__ provides debugging information for each step that is being performed.
+__Verbose__ when set to true all sent and received raw packets will be ouput for debugging purposes.
+
+```plaintext
+--- output cut short for brevity, notice the arrows
+
+-> NET_SSH2_MSG_CHANNEL_DATA (since last: 0.0013, network: 0.0002s)
+00000000  00:00:00:00:00:00:00:05:64:61:74:65:0a           ........date.
+
+<- NET_SSH2_MSG_CHANNEL_DATA (since last: 0.1556, network: 0.0011s)
+00000000  00:00:00:02:00:00:00:07:64:61:74:65:0d:0d:0a     ........date...
+
+<- NET_SSH2_MSG_CHANNEL_DATA (since last: 0.1458, network: 0.0001s)
+00000000  00:00:00:02:00:00:00:1f:46:72:69:20:4a:75:6e:20  ........Fri Jun
+00000010  32:31:20:31:31:3a:31:36:3a:31:32:20:43:45:53:54  21 11:16:12 CEST
+00000020  20:32:30:31:39:0d:0a                              2019..
+```
 
 #### Sending commands
 
 When sending commands you can either provide the resp. function with a string or an array consisting of commands. Either way is fine. When providing an array the commands are run in order.
-
-After execution all (cleaned) output is returned.
 
 ###### Sending one command as string
 
@@ -88,6 +100,36 @@ echo $device->operation([
 ]);
 ```
 
+###### Output
+
+All output will be returned as an array where the key is the command that was run
+
+```plaintext
+array (2) [
+    'run show version' => "fpc0:
+--------------------------------------------------------------------------
+Hostname: SW-Junos
+Model: ex3300-48p
+Junos: 15.1R5-S3.4
+JUNOS EX  Software Suite [15.1R5-S3.4]
+JUNOS FIPS mode utilities [15.1R5-S3.4]
+JUNOS Online Documentation [15.1R5-S3.4]
+JUNOS EX 3300 Software Suite [15.1R5-S3.4]
+JUNOS Web Management Platform Package [15.1R5-S3.4]
+"
+    'run show cli' => "CLI complete-on-space set to on
+CLI idle-timeout disabled
+CLI restart-on-upgrade set to on
+CLI screen-length set to 10000
+CLI screen-width set to 400
+CLI terminal is 'vt100'
+CLI is operating in enhanced mode
+CLI timestamp disabled
+CLI working directory is '/var/root'
+"
+]
+```
+
 #### Command types
 
 PhpMiko has 3 distinct mechanisms to send commands:
@@ -96,21 +138,16 @@ PhpMiko has 3 distinct mechanisms to send commands:
 - operation
 - configure
 
+All commands are run sequentially and chained. However this is only per set of supplied commands.
+
+After each block of commands the configuration mode of the device will be exited.
+
+Eg. if you go into edit mode of an interface in junos or configure terminal in cisco ios and run another configure set of commands you wont start where you left of the previous time. After each configure run is complete there will be a clean exit.
+
 ###### cli
 
 Runs one or more cli commands on a device.
 Eg. the standard linux cli in junos or user exec mode in cisco ios
-
-Sends commands one by one and does not chain commands. So after every command you return back to your initial state.
-For example run cd /tmp and then pwd you will still get back your standard home directory. If you need to chain
-commands you need to chain them with ; or &&
-
-cd /tmp ; pwd runs both commands back to back and ignores the return code of previous commands
-
-cd /tmp && pwd only runs pwd if the previous command (cd /tmp) returns status 0 (command successfull)
-
-This way the user still has enough flexibility. It would have been easy to just implode all the commands with ;
-or && but that would make this library to opinionated imho.
 
 ```php
 echo $device->cli([
@@ -122,9 +159,8 @@ echo $device->cli([
 ###### operation
 
 Runs one or more operational/enable commands on a device.
-Eg. cli mode in junos or privileged exec mode in cisco ios
+Eg. cli (operational) mode in junos or privileged exec mode in cisco ios
 
-Sends commands one by one and does not chain commands. So after every command you return back to your initial state.
 
 ```php
 echo $device->operation([
@@ -136,13 +172,7 @@ echo $device->operation([
 ###### configure
 
 Sends one or more configuration commands to the device.
-Eg. configuration/edit mode in junos or global configuration in cisco ios
-
-In this mode commands can be chained and executed sequentially. However this is only per set of supplied commands.
-
-After each block of commands the configuration mode of the device will be exited.
-
-Eg. if you go into edit mode of an interface in junos or configure terminal in cisco ios and run another configure set of commands you wont start where you left of the previous time. After each configure run is complete there will be a clean exit.
+Eg. configuration mode in junos or global configuration (configure terminal) in cisco ios
 
 ```php
 echo $device->configure([

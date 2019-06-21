@@ -2,14 +2,14 @@
 
 namespace Epiecs\PhpMiko\Devices;
 
-class junos implements deviceInterface
+class Junos implements deviceInterface
 {
 	/**
 	 * Holds the ssh connection
 	 * @var object
 	 */
 
-	private $conn;
+	public $conn;
 
 	/**
 	 * Contains the secret password if one is needed. Eg. Enable mode on a cisco device.
@@ -18,21 +18,15 @@ class junos implements deviceInterface
 
 	public $secret = '';
 
-	/**
-	 * Give more verbose output. eg. tell which command is being sent
-	 * @var boolean
-	 */
+    /**
+     * Patterns used to read the shell
+     */
 
-	public $verbose = false;
+    private $shellPattern             = '/.*@.*:RE:[0-9]{1,2}%\s/m';
+    private $operationalModePattern   = '/.*@.*>\s/m';
+    private $configurationModePattern = '/.*@.*#\s/m';
 
-	/**
-	 * Output raw text without cleanup
-	 * @var boolean
-	 */
-
-	public $raw = false;
-
-	/**
+    /**
 	 * Constructor. Expects a ssh2 object
 	 * @param object $connection SSH2 object
 	 */
@@ -43,21 +37,23 @@ class junos implements deviceInterface
 	}
 
 	/**
-	 * Sends one or more  cli command(s)
+	 * Sends one or more cli command(s)
 	 * @param  mixed $commands String with one command or array containing multiple commands
 	 * @return string           Returns all output
 	 */
 
-    public function cli($commands) : string
+    public function cli($commands) : array
     {
-		$output = '';
-		$commandList = is_array($commands) ? $commands : array($commands);
+		$output = array();
 
-		foreach($commandList as $command)
+        // First we do a basic cleanup of the shell
+        $this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+
+		foreach($commands as $command)
 		{
-			if($this->verbose){ echo "Executing command :: {$command} \n"; }
-			$output .= $this->conn->exec($command);
-		}
+            $this->conn->write("{$command}\n");
+            $output[$command] = $this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+        }
 
         return $output;
     }
@@ -68,16 +64,34 @@ class junos implements deviceInterface
 	 * @return string           Returns all output
 	 */
 
-    public function operation($commands) : string
+    public function operation($commands) : array
     {
-		$output = '';
-		$commandList = is_array($commands) ? $commands : array($commands);
+        $output = array();
 
-		foreach($commandList as $command)
+        // First we do a basic cleanup of the shell (wait until we have shell)
+		$this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+
+		// Go to operational (cli) mode
+        $this->conn->write("cli\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
+        $this->conn->write("set cli screen-length 10000\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
+        $this->conn->write("set cli screen-width 400\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
+
+		// Loop commands
+		foreach($commands as $command)
 		{
-			if($this->verbose){ echo "Executing command :: cli -c '{$command}' \n"; }
-			$output .= $this->conn->exec("cli -c '{$command}'");
+			$this->conn->write("{$command}\n");
+
+			// Read the data and add it to the output
+			$output[$command] = $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
 		}
+
+		// Exit the cli
+		$this->conn->write("set cli screen-length 93\n");
+		$this->conn->write("exit\n");
+        $this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
 
 		return $output;
     }
@@ -88,97 +102,55 @@ class junos implements deviceInterface
 	 * @return string           Returns all output
 	 */
 
-    public function configure($commands) : string
+    public function configure($commands) : array
     {
-		$output      = '';
-		$preConfig   = '';
-		$postConfig  = '';
-		$commandList = is_array($commands) ? $commands : array($commands);
+        $output = array();
 
-		$shellPattern             = '/.*@.*:RE:[0-9]{1,2}%\s/m';
-		$operationalModePattern   = '/.*@.*>\s/m';
-		$configurationModePattern = '/.*@.*#\s/m';
+        // First we do a basic cleanup of the shell (wait until we have shell)
+        $this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
 
-		// First we do a basic cleanup of the shell
-		$this->conn->write("\n\n\n\n\n\n");
-		$this->conn->read($shellPattern, $this->conn::READ_REGEX) . "\n";
+        // Go to operational (cli) mode
+        $this->conn->write("cli\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
+        $this->conn->write("set cli screen-length 10000\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
+        $this->conn->write("set cli screen-width 400\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
 
-		// Go to configuration mode
-		$this->conn->write("cli \n");
-		$preConfig .= $this->conn->read($operationalModePattern, $this->conn::READ_REGEX) . "\n";
+		$this->conn->write("configure\n");
+		$this->conn->read($this->configurationModePattern, $this->conn::READ_REGEX);
 
-		$this->conn->write("configure \n");
-		$preConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
+        // Loop commands
+        foreach($commands as $command)
+        {
+            $this->conn->write("{$command}\n");
 
-		$this->conn->write("run set cli screen-length 10000 \n");
-		$preConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
+            // Read the data and add it to the output
+            $output[$command] = $this->conn->read($this->configurationModePattern, $this->conn::READ_REGEX);
+        }
 
-		$this->conn->write("run set cli screen-width 400 \n");
-		$preConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
+        // Exit the cli
+        $this->conn->write("exit configuration-mode\n");
+        $this->conn->read($this->operationalModePattern, $this->conn::READ_REGEX);
+        $this->conn->write("set cli screen-length 93\n");
+        $this->conn->write("exit\n");
+        $this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
 
-		$this->conn->write("run show cli \n");
-		$preConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
+        return $output;
+    }
 
-		if($this->verbose){ echo $preConfig; echo "\n"; }
-
-		// Loop commands
-
-		foreach($commandList as $command)
-		{
-			if($this->verbose){ echo "Executing command :: {$command} \n"; }
-
-			$this->conn->write($command . "\n");
-
-			// Read the data and add it to the output
-			$output .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX) . "\n";
-		}
-
-		// Exit the cli
-		$this->conn->write("top \n");
-		$postConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
-
-		$this->conn->write("run set cli screen-length 93 \n");
-		$postConfig .= $this->conn->read($configurationModePattern, $this->conn::READ_REGEX);
-
-		$this->conn->write("exit configuration-mode \n");
-		$postConfig .= $this->conn->read($operationalModePattern, $this->conn::READ_REGEX);
-
-		$this->conn->write("exit \n");
-		$postConfig .= $this->conn->read($shellPattern, $this->conn::READ_REGEX);
-
-		if($this->verbose){ echo $postConfig; echo "\n"; }
-
-		if(!$this->raw)
-		{
-			if($this->verbose){ echo "Cleaning up output"; echo "\n"; }
-
-			/**
-			 * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
-			 * commands and turn them into a regex pattern.
-			 *
-			 * At the end we add some extra patterns in orde to fully clean up the output.
-			 */
-
-			$cleanupOutputPatterns = array_values($commands);
-			array_walk($cleanupOutputPatterns, function(&$value, &$key)
-			{
-			    $value = '/' . preg_quote($value, '/') . '\s/m';
-			});
-
-			$cleanupOutputPatterns    = array_merge($cleanupOutputPatterns, [
-				$configurationModePattern,
-				'/\[edit.*\]/',
-	            '/{master:.*}/',
-	            '/{backup:.*}/',
-	            '/{line.*}/',
-	            '/{primary.*}/',
-	            '/{secondary.*}/',
-				'/^\r?\n/m' //Filter empty lines
-			]);
-
-			$output = preg_replace($cleanupOutputPatterns, '', $output);
-		}
-
-		return $output;
+    public function cleanupPatterns()
+    {
+        return [
+            $this->shellPattern,
+            $this->operationalModePattern,
+            $this->configurationModePattern,
+            '/\[edit.*\]/',
+            '/{master:.*}/',
+            '/{backup:.*}/',
+            '/{line.*}/',
+            '/{primary.*}/',
+            '/{secondary.*}/',
+        ];
     }
 }

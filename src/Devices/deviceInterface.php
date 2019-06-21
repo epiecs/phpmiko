@@ -20,10 +20,10 @@ interface deviceInterface
 	 * or && but that would make this library to opiniated imho.
 	 *
 	 * @param mixed $commands Either a string containing one command or an array containing multiple command's
-	 * @return string returns all output
+	 * @return array Returns an array with the output of each command with the command as key
 	 */
 
-    public function cli($commands) : string;
+    public function cli($commands) : array;
 
 	/**
 	 * Runs one or more operational/enable commands on a device.
@@ -32,10 +32,10 @@ interface deviceInterface
 	 * Sends commands one by one and does not chain commands. So after every command you return back to your initial state.
 	 *
 	 * @param mixed $commands Either a string containing one command or an array containing multiple command's
-	 * @return string returns all output
+	 * @return array Returns an array with the output of each command with the command as key
 	 */
 
-    public function operation($commands) : string;
+    public function operation($commands) : array;
 
 	/**
 	 * Sends one or more configuration commands to the device.
@@ -45,8 +45,16 @@ interface deviceInterface
 	 * After each block of commands the configuration mode of the device will be exited.
 	 *
 	 * @param mixed $commands Either a string containing one command or an array containing multiple command's
-	 * @return string returns all output
+	 * @return array Returns an array with the output of each command with the command as key
 	 */
 
-    public function configure($commands) : string;
+    public function configure($commands) : array;
+
+    /**
+	 * Returns all patterns used for the device connection that are needed to clean up output
+	 *
+	 * @return array Returns an array with regex patterns neeeded for cleanup purposes
+	 */
+
+    public function cleanupPatterns();
 }
