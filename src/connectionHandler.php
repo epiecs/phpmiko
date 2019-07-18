@@ -85,7 +85,10 @@ class ConnectionHandler
 		$this->verbose = isset($parameters['verbose']) ? $parameters['verbose'] : false;
         $this->raw     = isset($parameters['raw']) ? $parameters['raw']         : false;
 
-        $this->verbose ? define('NET_SSH2_LOGGING', 2) : define('NET_SSH2_LOGGING', 0);
+        if(!defined('NET_SSH2_LOGGING'))
+        {
+            $this->verbose ? define('NET_SSH2_LOGGING', 2) : define('NET_SSH2_LOGGING', 0);
+        }
 
 		return true;
 	}
@@ -169,7 +172,7 @@ class ConnectionHandler
 
         $output = array_map(function($value) use ($cleanupOutputPatterns){
             $value = preg_replace($cleanupOutputPatterns, '', $value);
-            
+
             return $value;
         }, $output);
 
