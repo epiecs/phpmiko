@@ -140,9 +140,9 @@ PhpMiko has 3 distinct mechanisms to send commands:
 
 All commands are run sequentially and chained. However this is only per set of supplied commands.
 
-After each block of commands the configuration mode of the device will be exited.
+After each block of commands the current mode (cli/operation/configure) of the device will be exited.
 
-Eg. if you go into edit mode of an interface in junos or configure terminal in cisco ios and run another configure set of commands you wont start where you left of the previous time. After each configure run is complete there will be a clean exit.
+Eg. if you go into edit mode of an interface in junos or configure terminal in cisco ios and run another configure set of commands you wont start where you left of the previous time. After each run is complete there will be a clean exit.
 
 ###### cli
 
@@ -180,15 +180,6 @@ echo $device->configure([
 	'edit interfaces ge-0/0/1',
 	'set description "Sequential commands work"',
 ]);
-```
-
-#### Setting verbose mode
-
-Defaults to true when calling the function. Saves a bit of typing
-
-```php
-$device->verbose();
-$device->verbose(false);
 ```
 
 #### Setting raw mode
