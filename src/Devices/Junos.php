@@ -2,7 +2,7 @@
 
 namespace Epiecs\PhpMiko\Devices;
 
-class Junos implements deviceInterface
+class Junos implements DeviceInterface
 {
 	/**
 	 * Holds the ssh connection

@@ -2,7 +2,7 @@
 
 namespace Epiecs\PhpMiko\Devices;
 
-class Cisco_ios implements deviceInterface
+class Cisco_ios implements DeviceInterface
 {
 	/**
 	 * Holds the ssh connection

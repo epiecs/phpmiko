@@ -2,7 +2,7 @@
 
 namespace Epiecs\PhpMiko\Devices;
 
-interface deviceInterface
+interface DeviceInterface
 {
 	/**
 	 * Runs one or more cli commands on a device.

@@ -44,7 +44,7 @@ class ConnectionHandler
 	 *
 	 * $device = new \Epiecs\PhpMiko\connectionHandler([
 	 *     'device_type' => 'junos',
-	 *     'ip'          => '192.168.0.1',
+	 *     'hostname'    => '192.168.0.1',
 	 *     'username'    => 'username',
 	 *     'password'    => 'password',
 	 *     'port'        => 22,             //defaults to 22 if not set
@@ -57,12 +57,12 @@ class ConnectionHandler
 	public function __construct($parameters)
 	{
 		if(!isset($parameters['device_type']) || empty($parameters['device_type'])){ throw new \Exception("device_type must be set", 1);}
-		if(!isset($parameters['ip']) || empty($parameters['ip'])){ throw new \Exception("ip must be set", 1);}
+		if(!isset($parameters['hostname']) || empty($parameters['hostname'])){ throw new \Exception("hostname must be set", 1);}
 
 		$port = isset($parameters['port']) ? $parameters['port'] : 22;
 
 		// Check if the class for the specific device exists
-		$device_type = strtolower($parameters['device_type']);
+        $device_type = ucfirst(strtolower($parameters['device_type']));
 		$deviceClass = 'Epiecs\\PhpMiko\\Devices\\' . $device_type;
 
 		if(!class_exists($deviceClass))
@@ -70,7 +70,7 @@ class ConnectionHandler
 			throw new \Exception("No known class for device_type {$device_type}", 1);
 		}
 
-		$sshConnection = new SSH2($parameters['ip'], $port);
+		$sshConnection = new SSH2($parameters['hostname'], $port);
 
 		if(!$sshConnection->login($parameters['username'], $parameters['password']))
 		{
@@ -188,7 +188,11 @@ class ConnectionHandler
 	public function verbose($trueFalse = true)
 	{
 		$this->verbose = $trueFalse;
-        $this->verbose ? define('NET_SSH2_LOGGING', 2) : define('NET_SSH2_LOGGING', 0);
+
+        if(!defined('NET_SSH2_LOGGING'))
+        {
+            $this->verbose ? define('NET_SSH2_LOGGING', 2) : define('NET_SSH2_LOGGING', 0);
+        }
 
 		return true;
 	}

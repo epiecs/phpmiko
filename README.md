@@ -40,9 +40,9 @@ composer require epiecs/phpmiko
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$device = new \Epiecs\PhpMiko\connectionHandler([
+$device = new \Epiecs\PhpMiko\ConnectionHandler([
 	'device_type' => 'junos',
-	'ip'          => '192.168.0.1',
+	'hostname'    => '192.168.0.1',
 	'username'    => 'username',
 	'password'    => 'password',
 	'port'        => 22,             //defaults to 22 if not set
