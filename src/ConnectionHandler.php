@@ -54,7 +54,7 @@ class ConnectionHandler
 	 * ]);
 	 */
 
-	public function __construct($parameters)
+	public function __construct(array $parameters)
 	{
 		if(!isset($parameters['device_type']) || empty($parameters['device_type'])){ throw new \Exception("device_type must be set", 1);}
 		if(!isset($parameters['hostname']) || empty($parameters['hostname'])){ throw new \Exception("hostname must be set", 1);}
@@ -98,7 +98,7 @@ class ConnectionHandler
 	 * Public methods
 	 */
 
-	public function cli($commands)
+	public function cli($commands) : array
 	{
         $commands = is_array($commands) ? $commands : array($commands);
 
@@ -110,7 +110,7 @@ class ConnectionHandler
         return $output;
 	}
 
-	public function operation($commands)
+	public function operation($commands) : array
 	{
         $commands = is_array($commands) ? $commands : array($commands);
 
@@ -122,7 +122,7 @@ class ConnectionHandler
         return $output;
 	}
 
-	public function configure($commands)
+	public function configure($commands) : array
 	{
         $commands = is_array($commands) ? $commands : array($commands);
 
@@ -146,38 +146,70 @@ class ConnectionHandler
      * @return array The array with cleaned output in all members
      */
 
-    private function cleanOutput($output, $commands)
-    {
-        /**
-         * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
-         * commands and turn them into a regex pattern.
-         *
-         * At the end we add some extra patterns + fetch all pattersn from the device class in order
-         * to fully clean up the output.
-         */
+     private function cleanOutput(array $output, array $commands) : array
+     {
+         /**
+          * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
+          * commands and turn them into a regex pattern.
+          *
+          * At the end we add some extra patterns + fetch all patterns from the device class in order
+          * to fully clean up the output.
+          */
 
-        $cleanupOutputPatterns = array_values($commands);
-        array_walk($cleanupOutputPatterns, function(&$value, &$key)
-        {
-            $value = '/' . preg_quote($value, '/') . '\s/m';
-        });
+         $cleanupOutputPatterns = array_values($commands);
+         array_walk($cleanupOutputPatterns, function(&$value, &$key)
+         {
+             $value = '/' . preg_quote($value, '/') . '/m';
+         });
 
-        $cleanupOutputPatterns    = array_merge(
-            $cleanupOutputPatterns,
-            $this->deviceConnection->cleanupPatterns(), //Fetch the patterns from the device class
-            [
-                '/^\r?\n/m' //Filter empty lines
-            ]
-        );
 
-        $output = array_map(function($value) use ($cleanupOutputPatterns){
-            $value = preg_replace($cleanupOutputPatterns, '', $value);
+         // For edge cases we create special patterns that handle escaped strings in the commands eg \'{print $1 "::" $2}\'
+         // When we escape single quotes in our initial string we need to add double quotes because preg_quote wont correctly
+         // handle this.
+         //
+         // TODO: Edge cases still exist, test with the following code:
+         //
+         // use Epiecs\Phpmiko\ConnectionHandler;
+         //
+         // $device = new \Epiecs\PhpMiko\ConnectionHandler([
+         //     'device_type' => 'junos',
+         //     'hostname'    => "10.1.31.33",
+         //     'username'    => "",
+         //     'password'    => ""
+         // ]);
+         //
+         // $command =  $device->cli([
+         //                         'arp -a | grep 10.1.60 | grep -v ae100.0 | grep -v ae0.0 | awk \'{print $1 "::" $2}\'',
+         //                     ]);
+         //
+         // d($command);
+         // exit;
 
-            return $value;
-        }, $output);
+         $cleanupOutputPatternsQuoteSinglequote = array_values($commands);
+         array_walk($cleanupOutputPatternsQuoteSinglequote, function(&$value, &$key)
+         {
+             $value = '/' . preg_quote($value, '/') . '/m';
+             $value = str_replace("'", "\\\\'", $value);
+         });
 
-        return $output;
-    }
+         $cleanupOutputPatterns = array_merge($cleanupOutputPatterns, $cleanupOutputPatternsQuoteSinglequote);
+
+         $cleanupOutputPatterns    = array_merge(
+             $cleanupOutputPatterns,
+             $this->deviceConnection->cleanupPatterns(), //Fetch the patterns from the device class
+             [
+                 '/^\r?\n/m' //Filter empty lines
+             ]
+         );
+
+         $output = array_map(function($value) use ($cleanupOutputPatterns){
+             $value = preg_replace($cleanupOutputPatterns, '', $value);
+
+             return $value;
+         }, $output);
+
+         return $output;
+     }
 
 	/**
 	 * Sets verbose output. Defaults to true
@@ -202,9 +234,8 @@ class ConnectionHandler
      * @return boolean returns true when successfull
      */
 
-	public function disconnect()
+	public function disconnect() : void
 	{
 		unset($this->deviceConnection);
-		return true;
 	}
 }

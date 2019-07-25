@@ -49,5 +49,5 @@ interface DeviceInterface
 	 * @return array Returns an array with regex patterns neeeded for cleanup purposes
 	 */
 
-    public function cleanupPatterns();
+    public function cleanupPatterns() : array;
 }
