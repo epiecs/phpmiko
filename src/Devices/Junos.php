@@ -33,6 +33,8 @@ class Junos implements DeviceInterface
     // If planning to halt only one member use the member option
     // Power Off the system at 1907292300? [yes,no]
 
+    // TODO: maybe send enter at the beginning of the prompt and fetch the prompt and use that as a pattern?
+
     /**
 	 * Constructor. Expects a ssh2 object
 	 * @param object $connection SSH2 object

@@ -165,17 +165,17 @@ class ConnectionHandler
           * as such the regex for the run command wont detect this in the cleanoutput. 'sh int ge-0/0/0' will do
           * the same.
           *
-          * So we take the command and split it on whitespace a regex string that eagerly checks for lines
-          * containing the first 2 letters of each word. If there is only one character this character is used.
-          *
-          * At the end we add some extra patterns + fetch all patterns from the device class in order
-          * to fully clean up the output.
+          * So we take the command and split it on whitespace a regex string that eagerly checks for words/$parameters
+          * containing the first 2 letters of each word. If there is only one character then this character is used.
           */
 
           $cleanupOutputPatterns = array_values($commands);
 
           array_walk($cleanupOutputPatterns, function(&$value, &$key)
           {
+              // From the beginning of the command match all text in between whitespace and match only the first
+              // two letters or if there is only one character match that
+
               $regex = '/((?<=\s|^)\w{1,2})/m';
 
               preg_match_all($regex, $value, $matches, PREG_SET_ORDER);
