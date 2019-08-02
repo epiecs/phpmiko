@@ -26,6 +26,13 @@ class Junos implements DeviceInterface
     private $operationalModePattern   = '/.*@.*>\s/m';
     private $configurationModePattern = '/.*@.*#\s/m';
 
+
+    // TODO: Rekening houden met [yes,no] vragen in het pattern. Best werken met een | OR pipe
+    // request system power-off at 1907292300 all-members
+    // warning: This command will halt all the members.
+    // If planning to halt only one member use the member option
+    // Power Off the system at 1907292300? [yes,no]
+
     /**
 	 * Constructor. Expects a ssh2 object
 	 * @param object $connection SSH2 object

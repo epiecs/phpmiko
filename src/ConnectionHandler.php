@@ -70,6 +70,8 @@ class ConnectionHandler
 			throw new \Exception("No known class for device_type {$device_type}", 1);
 		}
 
+        // TODO: try catch voor ssh connectie doen
+
 		$sshConnection = new SSH2($parameters['hostname'], $port);
 
 		if(!$sshConnection->login($parameters['username'], $parameters['password']))
@@ -152,47 +154,36 @@ class ConnectionHandler
           * Prep an array with all regex patterns to clean up the ouput. first we walk all provided
           * commands and turn them into a regex pattern.
           *
+          * When we create the patterns we reduce the command to the shorthand version and create a eager regex
+          * based on that command.
+          *
+          * The reason for this is that the first line of output contains the command that has been executed.
+          * Although we do clean up the command that was run in the connection handler later on we still face the
+          * issue with some switch os-es auto completing the command when there is a slight difference.
+          *
+          * eg. when we run the command 'show interface ge-0/0/0' junos will correct it to 'show interfaceS ge-0/0/0'
+          * as such the regex for the run command wont detect this in the cleanoutput. 'sh int ge-0/0/0' will do
+          * the same.
+          *
+          * So we take the command and split it on whitespace a regex string that eagerly checks for lines
+          * containing the first 2 letters of each word. If there is only one character this character is used.
+          *
           * At the end we add some extra patterns + fetch all patterns from the device class in order
           * to fully clean up the output.
           */
 
-         $cleanupOutputPatterns = array_values($commands);
-         array_walk($cleanupOutputPatterns, function(&$value, &$key)
-         {
-             $value = '/' . preg_quote($value, '/') . '/m';
-         });
+          $cleanupOutputPatterns = array_values($commands);
 
+          array_walk($cleanupOutputPatterns, function(&$value, &$key)
+          {
+              $regex = '/((?<=\s|^)\w{1,2})/m';
 
-         // For edge cases we create special patterns that handle escaped strings in the commands eg \'{print $1 "::" $2}\'
-         // When we escape single quotes in our initial string we need to add double quotes because preg_quote wont correctly
-         // handle this.
-         //
-         // TODO: Edge cases still exist, test with the following code:
-         //
-         // use Epiecs\Phpmiko\ConnectionHandler;
-         //
-         // $device = new \Epiecs\PhpMiko\ConnectionHandler([
-         //     'device_type' => 'junos',
-         //     'hostname'    => "10.1.31.33",
-         //     'username'    => "",
-         //     'password'    => ""
-         // ]);
-         //
-         // $command =  $device->cli([
-         //                         'arp -a | grep 10.1.60 | grep -v ae100.0 | grep -v ae0.0 | awk \'{print $1 "::" $2}\'',
-         //                     ]);
-         //
-         // d($command);
-         // exit;
+              preg_match_all($regex, $value, $matches, PREG_SET_ORDER);
+              $baseMatches = array_column($matches, 0);
+              array_walk($baseMatches, 'preg_quote');
 
-         $cleanupOutputPatternsQuoteSinglequote = array_values($commands);
-         array_walk($cleanupOutputPatternsQuoteSinglequote, function(&$value, &$key)
-         {
-             $value = '/' . preg_quote($value, '/') . '/m';
-             $value = str_replace("'", "\\\\'", $value);
-         });
-
-         $cleanupOutputPatterns = array_merge($cleanupOutputPatterns, $cleanupOutputPatternsQuoteSinglequote);
+              $value = "/" . implode(".*\s", $baseMatches) . ".*/m";
+          });
 
          $cleanupOutputPatterns    = array_merge(
              $cleanupOutputPatterns,
