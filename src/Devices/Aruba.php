@@ -22,9 +22,9 @@ class Aruba implements DeviceInterface
      * Patterns used to read the shell
      */
 
-    private $shellPattern              = '/.*>.*$/m';
-    private $privilegedExecModePattern = '/.*#.*$/m';
-    private $configurationModePattern  = '/.*\(config\)#.*$/m';
+    private $shellPattern              = '/.*>$/m';
+    private $privilegedExecModePattern = '/.*#$/m';
+    private $configurationModePattern  = '/.*\(config\)#$/m';
 
     /**
 	 * Constructor. Expects a ssh2 object
