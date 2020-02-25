@@ -182,7 +182,7 @@ class ConnectionHandler
               $baseMatches = array_column($matches, 0);
               array_walk($baseMatches, 'preg_quote');
 
-              $value = "/" . implode(".*\s", $baseMatches) . ".*/m";
+              $value = "/^" . implode(".*", $baseMatches) . ".*/m";
           });
 
          $cleanupOutputPatterns    = array_merge(
