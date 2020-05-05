@@ -19,15 +19,15 @@ composer require epiecs/phpmiko
 
 ###### Implemented
 
+- Aruba
 - Juniper Junos
 - Cisco ios
+- Cisco nx-os
 
 ###### Planned
 
-- Aruba
 - Avaya
 - Linux
-- Powershell
 - Vyos
 - Checkpoint
 - ...
