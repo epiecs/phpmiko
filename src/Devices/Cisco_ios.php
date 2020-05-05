@@ -24,7 +24,7 @@ class Cisco_ios implements DeviceInterface
 
     private $shellPattern              = '/.*>.*$/m';
     private $privilegedExecModePattern = '/.*#.*$/m';
-    private $configurationModePattern  = '/.*\(config\)#.*$/m';
+    private $configurationModePattern  = '/.*\([\w-]+\)#.*$/m';
 
     /**
 	 * Constructor. Expects a ssh2 object
