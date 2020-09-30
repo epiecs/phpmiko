@@ -22,9 +22,9 @@ class Cisco_ios implements DeviceInterface
      * Patterns used to read the shell
      */
 
-    private $shellPattern              = '/.*>.*$/m';
-    private $privilegedExecModePattern = '/.*#.*$/m';
-    private $configurationModePattern  = '/.*\([\w-]+\)#.*$/m';
+    private $shellPattern              = '/.*>$/m';
+    private $privilegedExecModePattern = '/.*#$/m';
+    private $configurationModePattern  = '/.*\([\w-]+\)#$/m';
 
     /**
 	 * Constructor. Expects a ssh2 object
