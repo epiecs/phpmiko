@@ -32,6 +32,11 @@ composer require epiecs/phpmiko
 - Checkpoint
 - ...
 
+#### Supported protocols:
+
+- ssh
+- telnet
+
 ## Examples:
 
 #### Connecting to a device
@@ -45,7 +50,8 @@ $device = new \Epiecs\PhpMiko\ConnectionHandler([
 	'hostname'    => '192.168.0.1',
 	'username'    => 'username',
 	'password'    => 'password',
-	'port'        => 22,             //defaults to 22 if not set
+    'protocol'    => 'ssh',          //default is ssh
+	'port'        => 22,             //defaults to the protocol default if not set
 	'secret'      => 'secret',       //default is ''
 	'verbose'     => false,          //default is false
 	'raw'         => false           //default is false

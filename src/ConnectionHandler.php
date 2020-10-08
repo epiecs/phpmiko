@@ -2,9 +2,6 @@
 
 namespace Epiecs\PhpMiko;
 
-use phpseclib\Net\SSH2;
-use phpseclib\Crypt\RSA;
-
 /**
 *  Connection class
 *
@@ -47,7 +44,8 @@ class ConnectionHandler
 	 *     'hostname'    => '192.168.0.1',
 	 *     'username'    => 'username',
 	 *     'password'    => 'password',
-	 *     'port'        => 22,             //defaults to 22 if not set
+	 *     'protocol'    => 'ssh',          //default is ssh
+	 *     'port'        => 22,             //defaults to protocol default if not set
 	 *     'secret'      => 'secret',       //default is ''. eg. enable password for cisco
 	 *     'verbose'     => false           //default is false
 	 *     'raw'         => false           //default is false, returns raw unfiltered output if true
@@ -59,9 +57,17 @@ class ConnectionHandler
 		if(!isset($parameters['device_type']) || empty($parameters['device_type'])){ throw new \Exception("device_type must be set", 1);}
 		if(!isset($parameters['hostname']) || empty($parameters['hostname'])){ throw new \Exception("hostname must be set", 1);}
 
-		$port = isset($parameters['port']) ? $parameters['port'] : 22;
 
+        $protocol = $parameters['protocol'] ?? 'ssh';
+        $port     = $parameters['port'] ?? null;
+
+        $username = $parameters['username'] ?? null;
+        $password = $parameters['password'] ?? null;
+
+        //
 		// Check if the class for the specific device exists
+        //
+
         $device_type = ucfirst(strtolower($parameters['device_type']));
 		$deviceClass = 'Epiecs\\PhpMiko\\Devices\\' . $device_type;
 
@@ -70,27 +76,39 @@ class ConnectionHandler
 			throw new \Exception("No known class for device_type {$device_type}", 1);
 		}
 
-        // TODO: try catch voor ssh connectie doen
+        //
+		// Check if the class for the specific protocol exists
+        //
 
-		$sshConnection = new SSH2($parameters['hostname'], $port);
+        $protocol      = ucfirst(strtolower($protocol));
+		$protocolClass = 'Epiecs\\PhpMiko\\Protocols\\' . $protocol;
 
-		if(!$sshConnection->login($parameters['username'], $parameters['password']))
+		if(!class_exists($protocolClass))
 		{
-			throw new \Exception("could not connect to device", 1);
+			throw new \Exception("No known class for protocol {$protocol}", 1);
 		}
 
-		$this->deviceConnection = new $deviceClass($sshConnection);
-
-		$this->deviceConnection->secret  = isset($parameters['secret']) ? $parameters['secret']   : '';
-
-
-		$this->verbose = isset($parameters['verbose']) ? $parameters['verbose'] : false;
-        $this->raw     = isset($parameters['raw']) ? $parameters['raw']         : false;
-
-        if(!defined('NET_SSH2_LOGGING'))
+        if(!$connection = new $protocolClass($parameters['hostname'], $port))
         {
-            $this->verbose ? define('NET_SSH2_LOGGING', 2) : define('NET_SSH2_LOGGING', 0);
+            throw new \Exception("could not connect to device", 1);
         }
+
+		if(!$connection->login($username, $password))
+		{
+			throw new \Exception("username/password are incorrect", 1);
+		}
+
+		$this->deviceConnection = new $deviceClass($connection);
+
+		$this->deviceConnection->secret  = $parameters['secret'] ?? '';
+
+		$this->verbose = $parameters['verbose'] ?? false;
+        $this->raw     = $parameters['raw'] ?? false;
+
+        // if(!defined('NET_SSH2_LOGGING'))
+        // {
+        //     $this->verbose ? define('NET_SSH2_LOGGING', 2) : define('NET_SSH2_LOGGING', 0);
+        // }
 
 		return true;
 	}

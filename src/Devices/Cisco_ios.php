@@ -69,22 +69,22 @@ class Cisco_ios implements DeviceInterface
         $output = array();
 
         // First we do a basic cleanup of the shell
-		$this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+		$this->conn->flush();
 
 		// Go to privileged exec mode
         $this->conn->write("enable\n");
 
+
         if($this->secret != '')
         {
-            $this->conn->read("Password:");
+            // $this->conn->read("Password:");
             $this->conn->write("{$this->secret}\n");
-            $this->conn->read($this->privilegedExecModePattern, $this->conn::READ_REGEX);
         }
 
         $this->conn->write("terminal length 0\n");
 
         // Clean up the shell
-        $this->conn->read($this->privilegedExecModePattern, $this->conn::READ_REGEX);
+        $this->conn->flush();
 
 		// Loop commands
 		foreach($commands as $command)
@@ -96,9 +96,7 @@ class Cisco_ios implements DeviceInterface
 		}
 
 		// Exit the cli
-		$this->conn->write("terminal no length\n");
-		$this->conn->write("disable\n");
-        $this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+		$this->conn->disconnect();
 
 		return $output;
     }
@@ -114,7 +112,7 @@ class Cisco_ios implements DeviceInterface
         $output = array();
 
         // First we do a basic cleanup of the shell
-		$this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+		$this->conn->flush();
 
 		// Go to privileged exec mode
         $this->conn->write("enable\n");
@@ -123,13 +121,12 @@ class Cisco_ios implements DeviceInterface
         {
             $this->conn->read("Password:");
             $this->conn->write("{$this->secret}\n");
-            $this->conn->read($this->privilegedExecModePattern, $this->conn::READ_REGEX);
         }
 
         $this->conn->write("terminal length 0\n");
 
         // Clean up the shell
-        $this->conn->read($this->privilegedExecModePattern, $this->conn::READ_REGEX);
+        $this->conn->flush();
 
         $this->conn->write("configure terminal\n");
         $this->conn->read($this->configurationModePattern, $this->conn::READ_REGEX); //Clear with full read
@@ -143,11 +140,8 @@ class Cisco_ios implements DeviceInterface
 			$output[$command] = $this->conn->read($this->configurationModePattern, $this->conn::READ_REGEX);
 		}
 
-		// Exit the cli
-		$this->conn->write("exit\n");
-		$this->conn->write("terminal no length\n");
-        $this->conn->write("disable\n");
-		$this->conn->read($this->shellPattern, $this->conn::READ_REGEX);
+        // Exit the cli
+		$this->conn->disconnect();
 
 		return $output;
     }
