@@ -189,7 +189,7 @@ class ConnectionHandler
 
           $cleanupOutputPatterns = array_values($commands);
 
-          array_walk($cleanupOutputPatterns, function(&$value, &$key)
+          array_walk($cleanupOutputPatterns, function(&$value, $key)
           {
               // From the beginning of the command match all text in between whitespace and match only the first
               // two letters or if there is only one character match that
