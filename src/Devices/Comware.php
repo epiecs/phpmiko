@@ -51,8 +51,8 @@ class Comware implements DeviceInterface
 
     public function operation($commands): array
     {
-        // TODO: Implement operation() method.
-        return [];
+        // Operation is just user mode.
+        return $this->cli($commands);
     }
 
     public function configure($commands): array
