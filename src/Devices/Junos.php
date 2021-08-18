@@ -27,7 +27,7 @@ class Junos implements DeviceInterface
     private $configurationModePattern = '/.*@.*#\s/m';
 
 
-    // TODO: Rekening houden met [yes,no] vragen in het pattern. Best werken met een | OR pipe
+    // TODO: Take into account [yes,no] questions in the pattern. Maybe use a OR match in the pattern?
     // request system power-off at 1907292300 all-members
     // warning: This command will halt all the members.
     // If planning to halt only one member use the member option

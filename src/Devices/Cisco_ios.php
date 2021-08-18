@@ -95,9 +95,6 @@ class Cisco_ios implements DeviceInterface
 			$output[$command] = $this->conn->read($this->privilegedExecModePattern, $this->conn::READ_REGEX);
 		}
 
-		// Exit the cli
-		$this->conn->disconnect();
-
 		return $output;
     }
 
@@ -139,9 +136,6 @@ class Cisco_ios implements DeviceInterface
 			// Read the data and add it to the output
 			$output[$command] = $this->conn->read($this->configurationModePattern, $this->conn::READ_REGEX);
 		}
-
-        // Exit the cli
-		$this->conn->disconnect();
 
 		return $output;
     }
