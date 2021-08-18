@@ -58,7 +58,7 @@ composer require epiecs/phpmiko
 		- [cli](#cli)
 		- [operation](#operation)
 		- [configure](#configure)
-	- [Command to device mode mapping](#command-to-device-mode-mapping)
+	- [Device types and command mapping](#device-types-and-command-mapping)
 	- [Cleaning up and debugging](#cleaning-up-and-debugging)
 		- [Setting raw mode](#setting-raw-mode)
 		- [Closing the connection](#closing-the-connection)
@@ -87,9 +87,9 @@ $device = new \Epiecs\PhpMiko\ConnectionHandler([
 
 When the __raw__ flag is set to true PhpMiko will not clean up output and return it as is (minus a few hidden characters so you at least get all textual output).
 
-__Secret__ is used when a runlevel requires a different password. Like for example enable mode (privileged exec) in Cisco ios. You would put the enable password in the secret field.
+__secret__ is used when a runlevel requires a different password. Like for example enable mode (privileged exec) in Cisco ios. You would put the enable password in the secret field.
 
-__Verbose__ when set to true all sent and received raw packets will be ouput for debugging purposes.
+__verbose__ when set to true all sent and received raw packets will be ouput for debugging purposes.
 
 ```plaintext
 --- output cut short for brevity, notice the arrows
@@ -105,6 +105,8 @@ __Verbose__ when set to true all sent and received raw packets will be ouput for
 00000010  32:31:20:31:31:3a:31:36:3a:31:32:20:43:45:53:54  21 11:16:12 CEST
 00000020  20:32:30:31:39:0d:0a                              2019..
 ```
+
+For a list of all __device_types__ refer to [Device types and command mapping](#device-types-and-command-mapping).
 
 ### Sending commands
 
@@ -177,7 +179,7 @@ After each block of commands the current mode (cli/operation/configure) of the d
 
 Eg. if you go into edit mode of an interface in junos or configure terminal in cisco ios and run another configure set of commands you wont start where you left of the previous time. After each run is complete there will be a clean exit.
 
-Even though PhpMiko has 3 mechanisms not all are implemented on each device. Some devices only have 1 or 2 configuration tiers. For an overview please refer to [Command to device mode mapping](#command-to-device-mode-mapping).
+Even though PhpMiko has 3 mechanisms not all are implemented on each device. Some devices only have 1 or 2 configuration tiers. For an overview please refer to [Device types and command mapping](#device-types-and-command-mapping).
 
 ### cli
 
@@ -217,15 +219,15 @@ echo $device->configure([
 ]);
 ```
 
-## Command to device mode mapping
+## Device types and command mapping
 
-| Device      	| cli       	| operation        	| configure          	|
-|-------------	|-----------	|------------------	|--------------------	|
-| Aruba       	| user exec 	| privileged exec  	| configure terminal 	|
-| Cisco ios   	| user exec 	| privileged exec  	| configure terminal 	|
-| Cisco nxos  	| user exec 	| user exec        	| configure terminal 	|
-| Junos       	| linux cli 	| operational mode 	| configuration mode 	|
-| HPE Comware 	| user exec 	| user exec        	| system-view        	|
+| Vendor  	| Device      	| device_type 	| cli       	| operation        	| configure          	|
+|---------	|-------------	|-------------	|-----------	|------------------	|--------------------	|
+| Aruba   	| Aruba       	| aruba       	| user exec 	| privileged exec  	| configure terminal 	|
+| Cisco   	| Cisco ios   	| cisco_ios   	| user exec 	| privileged exec  	| configure terminal 	|
+|         	| Cisco nxos  	| cisco_nxos  	| user exec 	| user exec        	| configure terminal 	|
+| Juniper 	| Junos       	| junos       	| linux cli 	| operational mode 	| configuration mode 	|
+| HP      	| HPE Comware 	| comware     	| user exec 	| user exec        	| system-view        	|
 
 ## Cleaning up and debugging
 
