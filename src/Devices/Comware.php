@@ -18,7 +18,7 @@ class Comware implements DeviceInterface
      */
 
     private $shellPattern    = '/<.*>$/m';
-    private $systemVewPattern = '/\[.*]$/m';
+    private $systemViewPattern = '/\[.*]$/m';
 
     /**
      * Constructor. Expects a ssh2 object
@@ -68,13 +68,13 @@ class Comware implements DeviceInterface
         foreach($commands as $command)
         {
             $this->conn->write("{$command}\n");
-            $output[$command] = $this->conn->read($this->systemVewPattern, $this->conn::READ_REGEX);
+            $output[$command] = $this->conn->read($this->systemViewPattern, $this->conn::READ_REGEX);
         }
 
         // go back to user view
         do {
             $this->conn->write("quit\n");
-            $quit_output = $this->conn->read($this->systemVewPattern, $this->conn::READ_LITERAL);
+            $quit_output = $this->conn->read($this->systemViewPattern, $this->conn::READ_LITERAL);
         } while (! preg_match($this->shellPattern, $quit_output));
 
         return $output;
@@ -84,7 +84,7 @@ class Comware implements DeviceInterface
     {
         return [
             $this->shellPattern,
-            $this->systemVewPattern,
+            $this->systemViewPattern,
         ];
     }
 }
