@@ -20,9 +20,10 @@ composer require epiecs/phpmiko
 ### Implemented
 
 - Aruba
-- Juniper Junos
 - Cisco ios
 - Cisco nx-os
+- HPE Comware
+- Juniper Junos
 
 ### Planned
 
