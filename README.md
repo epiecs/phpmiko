@@ -63,7 +63,8 @@ composer require epiecs/phpmiko
 	- [Cleaning up and debugging](#cleaning-up-and-debugging)
 		- [Setting raw mode](#setting-raw-mode)
 		- [Closing the connection](#closing-the-connection)
-	- [Contributions](#contributions)
+	- [Suggestions](#suggestions)
+	- [Contributions and thanks](#contributions-and-thanks)
 
 ## Examples:
 
@@ -238,6 +239,18 @@ $device->raw(false);
 $device->disconnect();
 ```
 
-## Contributions
+## Suggestions
+
+The underlaying library for ssh connections is [phpseclib](https://phpseclib.com/docs/why#portability). They recommend the following php extensions for a nice speed boost when using ssh:
+
+* ext-libsodium
+* ext-openssl
+* ext-mcrypt
+* ext-gmp
+
+These extensions are not required.
+
+## Contributions and thanks
 
 * HPE Comware support [murrant](https://github.com/murrant)
+* Phpseclib [phpseclib](https://phpseclib.com/)

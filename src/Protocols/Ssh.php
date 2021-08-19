@@ -2,8 +2,8 @@
 
 namespace Epiecs\PhpMiko\Protocols;
 
-use phpseclib\Net\SSH2;
-use phpseclib\Crypt\RSA;
+use phpseclib3\Net\SSH2;
+use phpseclib3\Crypt\RSA;
 
 class Ssh implements ProtocolInterface
 {
