@@ -141,29 +141,20 @@ print_r($device->operation([
 All output will be returned as an array where the key is the command that was run
 
 ```plaintext
-array (2) [
-	'run show version' => "fpc0:
+Array
+(
+    [show version] => fpc0:
 --------------------------------------------------------------------------
 Hostname: SW-Junos
 Model: ex3300-48p
-Junos: 15.1R5-S3.4
-JUNOS EX  Software Suite [15.1R5-S3.4]
-JUNOS FIPS mode utilities [15.1R5-S3.4]
-JUNOS Online Documentation [15.1R5-S3.4]
-JUNOS EX 3300 Software Suite [15.1R5-S3.4]
-JUNOS Web Management Platform Package [15.1R5-S3.4]
-"
-	'run show cli' => "CLI complete-on-space set to on
-CLI idle-timeout disabled
-CLI restart-on-upgrade set to on
-CLI screen-length set to 10000
-CLI screen-width set to 400
-CLI terminal is 'vt100'
-CLI is operating in enhanced mode
-CLI timestamp disabled
-CLI working directory is '/var/root'
-"
-]
+Junos: 15.1R7.9
+JUNOS EX  Software Suite [15.1R7.9]
+JUNOS FIPS mode utilities [15.1R7.9]
+JUNOS Online Documentation [15.1R7.9]
+JUNOS EX 3300 Software Suite [15.1R7.9]
+JUNOS Web Management Platform Package [15.1R7.9]
+
+)
 ```
 
 ## Command types
@@ -188,10 +179,10 @@ Runs one or more cli commands on a device.
 Eg. the standard linux cli in junos or user exec mode in cisco ios
 
 ```php
-echo $device->cli([
+print_r($device->cli([
 	'pwd',
 	'cd /var/www ; pwd ; ls -l'
-]);
+]));
 ```
 
 ### operation
@@ -201,10 +192,10 @@ Eg. cli (operational) mode in junos or privileged exec mode in cisco ios
 
 
 ```php
-echo $device->operation([
+print_r($device->operation([
 	'show interfaces terse',
 	'show configuration interfaces ge-0/0/0'
-]);
+]));
 ```
 
 ### configure
@@ -213,11 +204,11 @@ Sends one or more configuration commands to the device.
 Eg. configuration mode in junos or global configuration (configure terminal) in cisco ios
 
 ```php
-echo $device->configure([
+print_r($device->configure([
 	'set interfaces ge-0/0/0 description "Test for documentation"',
 	'edit interfaces ge-0/0/1',
 	'set description "Sequential commands work"',
-]);
+]));
 ```
 
 ## Device types and command mapping
