@@ -2,6 +2,7 @@
     "name": "epiecs/phpmiko",
     "description": "Netmiko alternative written in PHP.",
     "keywords": ["netmiko", "paramiko", "networking", "automation"],
+    "homepage": "https://github.com/epiecs/phpmiko",
     "license": "MIT",
     "authors": [
         {
@@ -16,6 +17,12 @@
     },
     "require-dev": {
 		"phpunit/phpunit": "^8.3"
+    },
+    "suggest": {
+        "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
+        "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations.",
+        "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
+        "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations."
     },
     "autoload": {
         "psr-4": {
