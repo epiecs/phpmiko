@@ -26,15 +26,6 @@ class Junos implements DeviceInterface
     private $operationalModePattern   = '/.*@.*>\s/m';
     private $configurationModePattern = '/.*@.*#\s/m';
 
-
-    // TODO: Take into account [yes,no] questions in the pattern. Maybe use a OR match in the pattern?
-    // request system power-off at 1907292300 all-members
-    // warning: This command will halt all the members.
-    // If planning to halt only one member use the member option
-    // Power Off the system at 1907292300? [yes,no]
-
-    // TODO: maybe send enter at the beginning of the prompt and fetch the prompt and use that as a pattern?
-
     /**
 	 * Constructor. Expects a ssh2 object
 	 * @param object $connection SSH2 object
