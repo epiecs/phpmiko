@@ -116,24 +116,24 @@ When sending commands you can either provide a string or an array. Either way is
 #### Sending one command as string
 
 ```php
-echo $device->operation('show interfaces ge-0/0/0');
+print_r($device->operation('show interfaces ge-0/0/0'));
 ```
 
 #### Sending one command as an array
 
 ```php
-echo $device->operation([
+print_r($device->operation([
 	'show interfaces ge-0/0/0',
-]);
+]));
 ```
 
 #### Sending multiple commands
 
 ```php
-echo $device->operation([
+print_r($device->operation([
 	'show interfaces ge-0/0/0',
 	'show interfaces ge-0/0/1',
-]);
+]));
 ```
 
 ### Output
