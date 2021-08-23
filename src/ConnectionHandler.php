@@ -1,7 +1,7 @@
 <?php
 
 namespace Epiecs\PhpMiko;
-
+use phpseclib3\Exception\UnableToConnectException;
 /**
 *  Connection class
 *
@@ -90,13 +90,14 @@ class ConnectionHandler
 
         if(!$connection = new $protocolClass($parameters['hostname'], $port))
         {
-            throw new \Exception("could not connect to device", 1);
+            throw new \Exception("Could not instantiate {$protocol}", 1);
         }
 
-		if(!$connection->login($username, $password))
-		{
-			throw new \Exception("username/password are incorrect", 1);
-		}
+        try {
+            $connection->login($username, $password);
+        } catch (UnableToConnectException $error) {
+            throw new \Exception("Connection refused", 1);
+        }
 
 		$this->deviceConnection = new $deviceClass($connection);
 
