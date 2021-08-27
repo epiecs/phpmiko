@@ -103,9 +103,6 @@ class ConnectionHandler
             throw new \Exception("Connection refused", 1);
         }
 
-        // print_r($connection);
-        exit;
-
 		$this->deviceConnection = new $deviceClass($connection);
 
 		$this->deviceConnection->secret  = $parameters['secret'] ?? '';
