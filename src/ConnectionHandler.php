@@ -93,11 +93,18 @@ class ConnectionHandler
             throw new \Exception("Could not instantiate {$protocol}", 1);
         }
 
-        try {
-            $connection->login($username, $password);
+        try 
+        {
+            if(!$connection->login($username, $password))
+            {
+                throw new \Exception("Login failed.", 1);
+            }
         } catch (UnableToConnectException $error) {
             throw new \Exception("Connection refused", 1);
         }
+
+        // print_r($connection);
+        exit;
 
 		$this->deviceConnection = new $deviceClass($connection);
 

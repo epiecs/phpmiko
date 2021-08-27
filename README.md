@@ -214,13 +214,15 @@ print_r($device->configure([
 
 ## Device types and command mapping
 
-| Vendor  	| Device      	| device_type 	| cli       	| operation        	| configure          	|
-|---------	|-------------	|-------------	|-----------	|------------------	|--------------------	|
-| Aruba   	| Aruba       	| aruba       	| user exec 	| privileged exec  	| configure terminal 	|
-| Cisco   	| Cisco ios   	| cisco_ios   	| user exec 	| privileged exec  	| configure terminal 	|
-|         	| Cisco nxos  	| cisco_nxos  	| user exec 	| user exec        	| configure terminal 	|
-| Juniper 	| Junos       	| junos       	| linux cli 	| operational mode 	| configuration mode 	|
-| HP      	| HPE Comware 	| comware     	| user exec 	| user exec        	| system-view        	|
+| Vendor  	| Device      	| device_type 	| cli       						| operation        	| configure          	|
+|---------	|-------------	|-------------	|-----------						|------------------	|--------------------	|
+| Aruba   	| Aruba       	| aruba       	| user exec 						| privileged exec  	| configure terminal 	|
+| Cisco   	| Cisco ios   	| cisco_ios   	| user exec 						| privileged exec  	| configure terminal 	|
+|         	| Cisco nxos  	| cisco_nxos  	| user exec 						| user exec        	| configure terminal 	|
+| Juniper 	| Junos       	| junos       	| linux cli <sup>[1](#fn1)</sup>	| operational mode 	| configuration mode 	|
+| HP      	| HPE Comware 	| comware     	| user exec 						| user exec        	| system-view        	|
+
+<a name="fn1">1</a>: Only works when using the root account
 
 ## Cleaning up and debugging
 
