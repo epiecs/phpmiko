@@ -132,8 +132,6 @@ class ConnectionHandler
 
         echo ($this->verbose ? $this->deviceConnection->conn->getLog() : false);
 
-        $this->disconnect();
-
         return $output;
 	}
 
@@ -146,8 +144,6 @@ class ConnectionHandler
 
         echo ($this->verbose ? $this->deviceConnection->conn->getLog() : false);
 
-        $this->disconnect();
-
         return $output;
 	}
 
@@ -159,8 +155,6 @@ class ConnectionHandler
         $output = $this->raw ? $output : $this->cleanOutput($output, $commands);
 
         echo ($this->verbose ? $this->deviceConnection->conn->getLog() : false);
-
-        $this->disconnect();
 
         return $output;
 	}
@@ -259,4 +253,9 @@ class ConnectionHandler
         $this->deviceConnection->conn->disconnect();
 		unset($this->deviceConnection);
 	}
+
+    public function __destruct()
+    {
+        $this->disconnect();
+    }
 }

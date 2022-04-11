@@ -5,6 +5,8 @@ PhpMiko
 
 Mad respect to [Kirk Byers](https://github.com/ktbyers/netmiko) for creating netmiko and being a huge inspiration to this project.
 
+To hit the ground running check out the [Quickstart example](#quickstart-example).
+
 ## Requires:
 
 - Php >= 7.1
@@ -49,6 +51,7 @@ composer require epiecs/phpmiko
 	- [Supported protocols](#supported-protocols)
 	- [Contents](#contents)
 	- [Examples:](#examples)
+		- [Quickstart example](#quickstart-example)
 		- [Connecting to a device](#connecting-to-a-device)
 		- [Sending commands](#sending-commands)
 			- [Sending one command as string](#sending-one-command-as-string)
@@ -68,9 +71,60 @@ composer require epiecs/phpmiko
 
 ## Examples:
 
+### Quickstart example
+```php
+<?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$device = new \Epiecs\PhpMiko\ConnectionHandler([
+	'device_type' => 'junos',
+	'hostname'    => '192.168.0.1',
+	'username'    => 'my_user',
+	'password'    => 'mysafepassword',
+]);
+
+print_r($device->operation([
+	'show system uptime',
+	'show system alarms',
+]));
+
+/*
+Array
+(
+    [show system uptime] => fpc0:
+--------------------------------------------------------------------------
+Current time: 2018-11-02 02:30:18 CET
+Time Source:  LOCAL CLOCK 
+System booted: 2018-09-15 09:22:02 CEST (6w5d 18:08 ago)
+Protocols started: 2018-09-15 09:24:40 CEST (6w5d 18:05 ago)
+Last configured: 2018-10-14 06:47:11 CEST (2w4d 20:43 ago) by itdept
+ 2:30AM  up 47 days, 18:08, 3 users, load averages: 0.11, 0.11, 0.08
+
+    [show system alarms] => No alarms currently active
+)
+*/
+
+print_r($device->configure([
+	'set interfaces ge-0/0/47 description "Test for documentation"',
+	'edit interfaces ge-0/0/46',
+	'set description "Sequential commands work"',
+]));
+
+/*
+Array
+(
+    [set interfaces ge-0/0/47 description "Test for documentation"] => 
+    [edit interfaces ge-0/0/46] => 
+    [set description "Sequential commands work"] => 
+)
+*/
+```
+
 ### Connecting to a device
 
 ```php
+<?php
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -112,7 +166,9 @@ For a list of all __device_types__ refer to [Device types and command mapping](#
 
 ### Sending commands
 
-When sending commands you can either provide a string or an array. Either way is fine. When providing an array the commands are run in order.
+When sending commands you can either provide a string or an array. Either way is fine. When providing an array the commands are run in order. 
+
+In these examples the command type `operation` is used. For all command types check out [Command types](#command-types).
 
 #### Sending one command as string
 
@@ -162,15 +218,11 @@ JUNOS Web Management Platform Package [15.1R7.9]
 
 PhpMiko has 3 distinct mechanisms to send commands:
 
-- cli
-- operation
-- configure
+- `cli`
+- `operation`
+- `configure`
 
 All commands are run sequentially and chained. However this is only per set of supplied commands.
-
-After each block of commands the current mode (cli/operation/configure) of the device will be exited.
-
-Eg. if you go into edit mode of an interface in junos or configure terminal in cisco ios and run another configure set of commands you wont start where you left of the previous time. After each run is complete there will be a clean exit.
 
 Even though PhpMiko has 3 mechanisms not all are implemented on each device. Some devices only have 1 or 2 configuration tiers. For an overview please refer to [Device types and command mapping](#device-types-and-command-mapping).
 
@@ -190,7 +242,6 @@ print_r($device->cli([
 
 Runs one or more operational/enable commands on a device.
 Eg. cli (operational) mode in junos or privileged exec mode in cisco ios
-
 
 ```php
 print_r($device->operation([
