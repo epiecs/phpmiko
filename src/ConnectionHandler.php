@@ -31,7 +31,7 @@ class ConnectionHandler
 	 * @var object
 	 */
 
-	private $deviceConnection;
+	protected $deviceConnection;
 
 	/**
 	 * Sets base values and tries to auto load the class based off the device_type
