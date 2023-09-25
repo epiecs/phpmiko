@@ -66,15 +66,20 @@ class ConnectionHandler
 
         //
 		// Check if the class for the specific device exists
+        // First check for explicit DeviceInterface classes given, then built in classes
         //
 
         $device_type = ucfirst(strtolower($parameters['device_type']));
-		$deviceClass = 'Epiecs\\PhpMiko\\Devices\\' . $device_type;
+		$builtInDeviceClass = 'Epiecs\\PhpMiko\\Devices\\' . $device_type;
 
-		if(!class_exists($deviceClass))
-		{
+        if (class_exists($parameters['device_type'])  && is_subclass_of($parameters['device_type'], DeviceInterface::class)) {
+            $deviceClass = $parameters['device_type'];
+        } elseif (class_exists($builtInDeviceClass)) {
+            $deviceClass = $builtInDeviceClass;
+        } else {
 			throw new \Exception("No known class for device_type {$device_type}", 1);
 		}
+
 
         //
 		// Check if the class for the specific protocol exists
