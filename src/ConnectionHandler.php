@@ -2,6 +2,7 @@
 
 namespace Epiecs\PhpMiko;
 use phpseclib3\Exception\UnableToConnectException;
+use Epiecs\PhpMiko\Devices\DeviceInterface;
 /**
 *  Connection class
 *
